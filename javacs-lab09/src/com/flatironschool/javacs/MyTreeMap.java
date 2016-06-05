@@ -71,9 +71,11 @@ public class MyTreeMap<K, V> implements Map<K, V> {
 		@SuppressWarnings("unchecked")
 		Comparable<? super K> k = (Comparable<? super K>) target;
 		
-		// the actual search
-        // TODO: Fill this in.
-        return null;
+		//call recursive helper function
+		
+		return getHelper(root, target);
+		
+        //return null;
 	}
 
 	/**
@@ -92,7 +94,10 @@ public class MyTreeMap<K, V> implements Map<K, V> {
 
 	@Override
 	public boolean containsValue(Object target) {
-		return false;
+		
+		//get set of values and use Set.contains(Object obj) method 		
+		Collection<V> valueSet = values();
+		return valueSet.contains(target);
 	}
 
 	@Override
@@ -108,6 +113,37 @@ public class MyTreeMap<K, V> implements Map<K, V> {
 		}
 		return node.value;
 	}
+	
+	//Helper function
+	//----------------------------------------------
+	
+	public Node getHelper(Node curr, Object target){
+		
+		if(curr == null){
+			return null;
+		}
+		// something to make the compiler happy
+		@SuppressWarnings("unchecked")
+		Comparable<? super K> k = (Comparable<? super K>) target;
+		
+		// the actual search
+		int cmp = k.compareTo(curr.key);
+		
+		if(cmp < 0){
+			
+			return getHelper(curr.left, target);
+		}
+		else if(cmp > 0){
+		
+			return getHelper(curr.right, target);
+		}
+		else{
+			return curr;
+		}
+	}
+
+	//----------------------------------------------
+
 
 	@Override
 	public boolean isEmpty() {
@@ -117,8 +153,29 @@ public class MyTreeMap<K, V> implements Map<K, V> {
 	@Override
 	public Set<K> keySet() {
 		Set<K> set = new LinkedHashSet<K>();
-        // TODO: Fill this in.
+		
+		inOrder(root, set);
+		
+		for(K key: set){
+			
+			System.out.print(key + " . ");
+		}
 		return set;
+	}
+	
+	private void inOrder(Node curr, Set<K> set){
+		
+		if(curr == null){
+			return;
+		}
+				
+		//in-order traversal
+		//recursively recurse left subtree
+		inOrder(curr.left, set);
+
+		set.add(curr.key);
+		//recursively recurse right subtree
+		inOrder(curr.right, set);
 	}
 
 	@Override
@@ -126,17 +183,54 @@ public class MyTreeMap<K, V> implements Map<K, V> {
 		if (key == null) {
 			throw new NullPointerException();
 		}
+		
 		if (root == null) {
 			root = new Node(key, value);
 			size++;
 			return null;
 		}
-		return putHelper(root, key, value);
+		
+		Node res = putHelper(root, key, value);
+		
+		return res.value;
+		
+		//return putHelper(root, key, value);
 	}
 
-	private V putHelper(Node node, K key, V value) {
-        // TODO: Fill this in.
-        return null;
+	private Node putHelper(Node node, K key, V value) {
+        
+        if(node == null){
+        	
+        	size++;
+        	Node newNode = new Node(key, value);
+        	return newNode;
+        	
+        }   
+        
+        // something to make the compiler happy
+		@SuppressWarnings("unchecked")
+		Comparable<? super K> k = (Comparable<? super K>) key;
+		
+		// the actual search
+		int cmp = k.compareTo(node.key);
+		if(cmp < 0){
+			//System.out.println("LEFT");
+			//System.out.println("LEFT VALUE:  " + node.left.value);
+
+			node.left = putHelper(node.left, key, value);			
+		}
+		else if(cmp > 0){
+		    //System.out.println("RIGHT");
+
+			node.right = putHelper(node.right, key, value);			
+		}
+		else{
+			
+			node.value = value;
+			//size++;
+		}
+		
+		return node;
 	}
 
 	@Override
